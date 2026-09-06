@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next
+.next/
+out/
+build/
+next-env.d.ts
+
+# convex generated — committed so the repo typechecks/tests/builds on a fresh clone.
+# `npx convex dev` regenerates these with fully-typed function references.
+
+# env
+.env
+.env*.local
+.env.local
+
+# misc
+.DS_Store
+*.log
+coverage/
+.vitest/
+/data/
+
+# TS incremental build info
+*.tsbuildinfo
