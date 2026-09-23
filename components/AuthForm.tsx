@@ -28,8 +28,8 @@ export default function AuthForm() {
     } catch {
       setError(
         flow === "signUp"
-          ? "Account create nahi ho saka. Email check karke dobara try karein."
-          : "Email ya password incorrect hai.",
+          ? "We could not create your account. Please check your email and try again."
+          : "The email or password is incorrect.",
       );
       setBusy(false);
     }
