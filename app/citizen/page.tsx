@@ -30,7 +30,7 @@ export default function CitizenPage() {
     {
       role: "assistant",
       content:
-        "Hi! Tell me what happened in plain words — for example, “I had an accident and the other person won’t pay,” and I’ll explain your options and can help you find an advocate.",
+        "Hi! Tell me what happened in plain words — for example, 'I had an accident and the other person won’t pay,' and I’ll explain your options and can help you find an advocate.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -65,8 +65,14 @@ export default function CitizenPage() {
     const history = messages.map((m) => ({ role: m.role, content: m.content }));
     setMessages((m) => [...m, { role: "user", content: text }]);
     setBusy(true);
+
     try {
-      const r = await respond({ sessionId: (sessionId as any) ?? undefined, history, message: text });
+      const r = await respond({
+        sessionId: (sessionId as any) ?? undefined,
+        history,
+        message: text,
+      });
+
       setSessionId(r.sessionId);
       setCategory(r.category);
       setNeedsLocation(r.needsLocation && r.category !== "other");
@@ -85,6 +91,7 @@ export default function CitizenPage() {
   async function shareWithAdvocate() {
     if (!sessionId || !consentName.trim() || !consentPhone.trim()) return;
     setConsenting(true);
+
     try {
       await grantConsent({
         sessionId: sessionId as any,
@@ -93,7 +100,7 @@ export default function CitizenPage() {
       });
       setConsentDone(true);
     } catch {
-      /* ignore */
+      // ignore
     } finally {
       setConsenting(false);
     }
@@ -103,6 +110,7 @@ export default function CitizenPage() {
     if (!category || category === "other") return;
     setFindingAdv(true);
     setAdvocates(null);
+
     try {
       const r = await findAdvocates({ practiceArea: CATEGORY_LABEL[category], city: city || undefined });
       setAdvocates(r.advocates);
@@ -116,10 +124,13 @@ export default function CitizenPage() {
   return (
     <div className="flex h-[100dvh] flex-col">
       <Nav />
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-hidden px-3 sm:px-4">
+
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col overflow-hidden px-3 sm:px-4">
         <div className="py-4">
-          <h1 className="text-xl font-bold">Legal information assistant</h1>
-          <p className="text-xs text-slate-500">
+          <p className="section-label">LEGAL ASSISTANT</p>
+          <h1 className="mt-2 text-2xl font-black text-navy">Legal information assistant</h1>
+
+          <p className="mt-2 text-sm text-slate-500">
             General information about Indian law — not legal advice. Identifiers you type are redacted.
             {category && category !== "other" && (
               <span className="badge ml-2">Detected: {CATEGORY_LABEL[category]}</span>
@@ -133,8 +144,8 @@ export default function CitizenPage() {
               <div
                 className={
                   m.role === "user"
-                    ? "max-w-[80%] rounded-2xl rounded-br-sm bg-brand px-4 py-2.5 text-sm text-white"
-                    : "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm"
+                    ? "max-w-[80%] rounded-2xl rounded-br-sm bg-navy px-4 py-3 text-sm text-white shadow-md"
+                    : "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm"
                 }
               >
                 {m.content}
@@ -144,7 +155,7 @@ export default function CitizenPage() {
 
           {busy && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-500 shadow-sm">
+              <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm">
                 <span className="flex gap-1">
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
@@ -153,46 +164,106 @@ export default function CitizenPage() {
                 {THINKING[thinkIdx]}
               </div>
             </div>
-          )}
+        )}
 
           {category && category !== "other" && !busy && (
-            <div className="rounded-xl border border-brand/20 bg-brand/5 p-4">
-              <p className="text-sm font-medium text-slate-800">Want help from a {CATEGORY_LABEL[category]} advocate?</p>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {needsLocation && (
-                  <input
-                    className="input max-w-[180px]"
-                    placeholder="Your city (e.g. Delhi)"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                  />
-                )}
-                <button className="btn" disabled={findingAdv} onClick={locateAdvocates}>
-                  {findingAdv ? "Finding advocates…" : "Find advocates near me"}
-                </button>
+            <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue/10 text-blue">
+                  ⚖
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-navy">
+                    Find a verified advocate
+                  </p>
+
+                  <p className="mt-1 text-xs leading-5 text-slate-600">
+                    Based on your conversation, you may want to speak with a
+                    {` ${CATEGORY_LABEL[category]}`} advocate.
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {needsLocation && (
+                      <input
+                        className="input max-w-[220px]"
+                        placeholder="Your city, e.g. Delhi"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                      />
+                    )}
+
+                    <button
+                      className="btn"
+                      disabled={findingAdv}
+                      onClick={() => void locateAdvocates()}
+                    >
+                      {findingAdv ? "Finding advocates..." : "Find advocates"}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {advocates && advocates.length === 0 && (
-                <p className="mt-3 text-sm text-slate-500">
-                  No advocates found for that filter. Try a different city, or browse the{" "}
-                  <a href="/marketplace" className="text-brand underline">directory</a>.
+                <p className="mt-4 rounded-xl bg-white p-3 text-sm text-slate-600">
+                  No advocates found for this filter. Try another city or visit
+                  the{" "}
+                  <a href="/marketplace" className="font-semibold text-blue underline">
+                    advocate directory
+                  </a>
+                  .
                 </p>
               )}
+
               {advocates && advocates.length > 0 && (
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {advocates.map((a, i) => (
-                    <div key={i} className="rounded-lg border border-slate-200 bg-white p-3">
-                      <p className="font-medium text-slate-900">{a.name}</p>
-                      {a.address && <p className="text-xs text-slate-500">{a.address}</p>}
-                      {a.city && <p className="text-xs text-slate-400">{a.city}</p>}
-                      <div className="mt-2 flex gap-3 text-xs">
-                        {a.phone && <a href={`tel:${a.phone}`} className="text-brand underline">Call</a>}
-                        {a.url && (
-                          <a href={a.url} target="_blank" rel="noreferrer" className="text-brand underline">
-                            View details →
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {advocates.map((advocate, index) => (
+                    <div
+                      key={`${advocate.name}-${index}`}
+                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-bold text-navy">{advocate.name}</p>
+
+                          {advocate.city && (
+                            <p className="mt-1 text-xs text-slate-500">
+                              {advocate.city}
+                            </p>
+                          )}
+                        </div>
+
+                        <span className="badge-success">Verified</span>
+                      </div>
+
+                      {advocate.address && (
+                        <p className="mt-3 text-xs leading-5 text-slate-500">
+                          {advocate.address}
+                        </p>
+                      )}
+
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                        {advocate.phone && (
+                          <a
+                            href={`tel:${advocate.phone}`}
+                            className="font-semibold text-blue hover:underline"
+                          >
+                            Call advocate
                           </a>
                         )}
-                        <span className="badge">via {a.source}</span>
+
+                        {advocate.url && (
+                          <a
+                            href={advocate.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-semibold text-blue hover:underline"
+                          >
+                            View profile →
+                          </a>
+                        )}
+
+                        <span className="badge">via {advocate.source}</span>
                       </div>
                     </div>
                   ))}
@@ -202,25 +273,34 @@ export default function CitizenPage() {
           )}
 
           {category && category !== "other" && !busy && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
               {!consentDone ? (
                 <>
-                  <p className="text-sm font-medium text-slate-800">
-                    Want us to connect you with a verified advocate?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    With your consent, we&apos;ll share a short summary of your{" "}
-                    {CATEGORY_LABEL[category]} matter{city ? ` in ${city}` : ""} with verified,
-                    BCI-enrolled advocates so they can reach out and help. You can decline — this is
-                    optional, and only what you approve is shared.
-                  </p>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      ✓
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-bold text-emerald-900">
+                        Want to connect with a verified advocate?
+                      </p>
+
+                      <p className="mt-1 text-xs leading-5 text-emerald-800/80">
+                        This is optional. With your consent, only the information
+                        you approve will be shared with verified advocates.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     <input
                       className="input"
                       placeholder="Your name"
                       value={consentName}
                       onChange={(e) => setConsentName(e.target.value)}
                     />
+
                     <input
                       className="input"
                       placeholder="Phone or email"
@@ -228,18 +308,25 @@ export default function CitizenPage() {
                       onChange={(e) => setConsentPhone(e.target.value)}
                     />
                   </div>
+
                   <button
-                    className="btn mt-3 bg-emerald-600 hover:bg-emerald-700"
-                    disabled={consenting || !consentName.trim() || !consentPhone.trim()}
-                    onClick={shareWithAdvocate}
+                    className="mt-3 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={
+                      consenting ||
+                      !consentName.trim() ||
+                      !consentPhone.trim()
+                    }
+                    onClick={() => void shareWithAdvocate()}
                   >
-                    {consenting ? "Sharing…" : "I consent — connect me with an advocate"}
+                    {consenting
+                      ? "Sharing..."
+                      : "I consent — connect me with an advocate"}
                   </button>
                 </>
               ) : (
-                <p className="text-sm font-medium text-emerald-800">
-                  ✓ Thanks, {consentName}. Your case has been shared with verified advocates in your
-                  area — one of them will reach out to you shortly.
+                <p className="text-sm font-semibold text-emerald-800">
+                  ✓ Thanks, {consentName}. Your request has been shared with
+                  verified advocates.
                 </p>
               )}
             </div>
@@ -247,26 +334,35 @@ export default function CitizenPage() {
         </div>
 
         <div className="border-t border-slate-200 py-3">
-          <div className="flex items-end gap-2">
-            <textarea
-              className="input flex-1 resize-none"
-              rows={1}
-              placeholder="Describe your legal issue…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void send();
-                }
-              }}
-            />
-            <button className="btn" disabled={busy || !input.trim()} onClick={() => void send()}>
-              Send
-            </button>
+          <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-lg shadow-slate-200/50">
+            <div className="flex items-end gap-2">
+              <textarea
+                className="min-h-[44px] flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-sm outline-none"
+                rows={1}
+                placeholder="Describe your legal issue..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void send();
+                  }
+                }}
+              />
+
+              <button
+                className="btn shrink-0"
+                disabled={busy || !input.trim()}
+                onClick={() => void send()}
+              >
+                Send
+              </button>
+            </div>
           </div>
+
           <p className="mt-2 text-center text-[11px] text-slate-400">
-            Information only, not legal advice. For advice, consult a verified advocate.
+            Information only, not legal advice. For advice, consult a verified
+            advocate.
           </p>
         </div>
       </main>

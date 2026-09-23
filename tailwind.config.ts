@@ -1,15 +1,17 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a",
-        brand: { DEFAULT: "#1e3a8a", light: "#3b82f6" },
+        navy: "#081a33",
+        blue: "#3157d5",
+        gold: "#d9a441",
+        ink: "#121b2a",
+        canvas: "#f6f8fc",
+        muted: "#5f6f85",
+        success: "#1f9d67",
       },
     },
   },
