@@ -4,6 +4,28 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
+function getAuthErrorMessage(error: unknown, flow: "signIn" | "signUp") {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+
+  if (message.includes("already exists") || message.includes("already registered") || message.includes("account exists")) {
+    return "An account with this email already exists. Switch to Sign in instead.";
+  }
+
+  if (message.includes("invalid password") || message.includes("password")) {
+    return flow === "signUp"
+      ? "Your password must be at least 8 characters long."
+      : "The email or password is incorrect.";
+  }
+
+  if (message.includes("network") || message.includes("fetch") || message.includes("websocket")) {
+    return "The authentication service could not be reached. Make sure Convex is running and try again.";
+  }
+
+  return flow === "signUp"
+    ? "We could not create your account. Check the email and password, then try again."
+    : "The email or password is incorrect.";
+}
+
 export default function AuthForm() {
   const { signIn } = useAuthActions();
 
@@ -15,22 +37,24 @@ export default function AuthForm() {
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
 
     setBusy(true);
     setError(null);
 
     try {
       await signIn("password", {
-        email,
+        email: normalizedEmail,
         password,
         flow,
       });
-    } catch {
-      setError(
-        flow === "signUp"
-          ? "We could not create your account. Please check your email and try again."
-          : "The email or password is incorrect.",
-      );
+    } catch (caughtError) {
+      setError(getAuthErrorMessage(caughtError, flow));
       setBusy(false);
     }
   }
@@ -38,22 +62,16 @@ export default function AuthForm() {
   const isSignUp = flow === "signUp";
 
   return (
-    <form
-      onSubmit={submit}
-      className="card w-full max-w-md border-white/70 p-6 sm:p-7"
-    >
+    <form onSubmit={submit} className="card w-full max-w-md border-white/70 p-6 sm:p-7">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue/10 text-blue">
             <ShieldCheck size={23} />
           </div>
-
           <p className="section-label">SECURE LEGAL WORKSPACE</p>
-
           <h2 className="mt-2 text-2xl font-black tracking-tight text-navy">
             {isSignUp ? "Create your account" : "Welcome back"}
           </h2>
-
           <p className="mt-2 text-sm leading-6 text-slate-500">
             {isSignUp
               ? "Start managing your legal research and matters in one secure workspace."
@@ -64,16 +82,9 @@ export default function AuthForm() {
 
       <div className="space-y-4">
         <div>
-          <label className="label" htmlFor="auth-email">
-            Email address
-          </label>
-
+          <label className="label" htmlFor="auth-email">Email address</label>
           <div className="relative">
-            <Mail
-              size={18}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
+            <Mail size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="auth-email"
               className="input pl-10"
@@ -88,16 +99,9 @@ export default function AuthForm() {
         </div>
 
         <div>
-          <label className="label" htmlFor="auth-password">
-            Password
-          </label>
-
+          <label className="label" htmlFor="auth-password">Password</label>
           <div className="relative">
-            <LockKeyhole
-              size={18}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
+            <LockKeyhole size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="auth-password"
               className="input pl-10"
@@ -114,17 +118,13 @@ export default function AuthForm() {
       </div>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">
+        <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">
           {error}
         </div>
       )}
 
       <button type="submit" className="btn mt-6 w-full" disabled={busy}>
-        {busy
-          ? "Please wait..."
-          : isSignUp
-            ? "Create secure account"
-            : "Sign in to workspace"}
+        {busy ? "Please wait..." : isSignUp ? "Create secure account" : "Sign in to workspace"}
       </button>
 
       <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
@@ -146,9 +146,7 @@ export default function AuthForm() {
           setFlow(isSignUp ? "signIn" : "signUp");
         }}
       >
-        {isSignUp
-          ? "Already have an account? Sign in"
-          : "New to NyayaSetu? Create an account"}
+        {isSignUp ? "Already have an account? Sign in" : "New to NyayaSetu? Create an account"}
       </button>
     </form>
   );
