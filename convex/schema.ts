@@ -6,10 +6,8 @@ import { EMBEDDING_DIM } from "./lib/constants";
 export { EMBEDDING_DIM };
 
 export default defineSchema({
-  // Convex Auth manages users + auth sessions/accounts.
   ...authTables,
 
-  // ── Tenancy ────────────────────────────────────────────────────────────────
   firms: defineTable({
     name: v.string(),
     ownerUserId: v.id("users"),
@@ -25,7 +23,16 @@ export default defineSchema({
     .index("by_firm", ["firmId"])
     .index("by_user_firm", ["userId", "firmId"]),
 
-  // ── CRM (L7) ────────────────────────────────────────────────────────────────
+  userProfiles: defineTable({
+    userId: v.id("users"),
+    accountType: v.union(v.literal("citizen"), v.literal("advocate")),
+    displayName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    city: v.optional(v.string()),
+    onboardingComplete: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
   clients: defineTable({
     firmId: v.id("firms"),
     name: v.string(),
@@ -43,13 +50,7 @@ export default defineSchema({
     category: v.string(),
     subcategory: v.string(),
     summaryText: v.string(),
-    status: v.union(
-      v.literal("intake"),
-      v.literal("research"),
-      v.literal("drafting"),
-      v.literal("active"),
-      v.literal("closed"),
-    ),
+    status: v.union(v.literal("intake"), v.literal("research"), v.literal("drafting"), v.literal("active"), v.literal("closed")),
     createdBy: v.id("users"),
   })
     .index("by_firm", ["firmId"])
@@ -66,14 +67,13 @@ export default defineSchema({
     uploadedBy: v.id("users"),
   }).index("by_matter", ["matterId"]),
 
-  // ── Shared judgment corpus (public records; NOT firm-scoped) ─────────────────
   corpusDocuments: defineTable({
-    source: v.string(), // sc_seed | openjustice | indiankanoon
+    source: v.string(),
     sourceDocId: v.string(),
     court: v.optional(v.string()),
     caseName: v.string(),
     neutralCitation: v.optional(v.string()),
-    citations: v.array(v.string()), // normalized canonical citation keys
+    citations: v.array(v.string()),
     decisionDate: v.optional(v.string()),
     bench: v.optional(v.string()),
     docType: v.string(),
@@ -86,9 +86,8 @@ export default defineSchema({
     .index("by_case_name", ["caseName"])
     .searchIndex("search_case_name", { searchField: "caseName" }),
 
-  // Canonical-citation -> document map for O(1) verification at corpus scale (§9.3).
   corpusCitations: defineTable({
-    key: v.string(), // canonical citation key, e.g. "SCC:2004:3:297"
+    key: v.string(),
     documentId: v.id("corpusDocuments"),
   })
     .index("by_key", ["key"])
@@ -118,7 +117,6 @@ export default defineSchema({
     stats: v.any(),
   }).index("by_source", ["source"]),
 
-  // ── Research artifacts (firm-scoped) ─────────────────────────────────────────
   researchBriefs: defineTable({
     firmId: v.id("firms"),
     matterId: v.id("matters"),
@@ -140,11 +138,7 @@ export default defineSchema({
     citationString: v.string(),
     sourceUrl: v.optional(v.string()),
     corpusDocumentId: v.optional(v.id("corpusDocuments")),
-    verificationStatus: v.union(
-      v.literal("verified"),
-      v.literal("unverified"),
-      v.literal("dropped"),
-    ),
+    verificationStatus: v.union(v.literal("verified"), v.literal("unverified"), v.literal("dropped")),
     relevancePassage: v.string(),
     matchMethod: v.string(),
   })
@@ -162,7 +156,6 @@ export default defineSchema({
     .index("by_firm", ["firmId"])
     .index("by_matter", ["matterId"]),
 
-  // ── Side B: marketplace (compliance-sensitive; behind flags in UI) ──────────
   lawyerProfiles: defineTable({
     userId: v.id("users"),
     displayName: v.string(),
@@ -183,12 +176,7 @@ export default defineSchema({
     lawyerUserId: v.id("users"),
     slot: v.string(),
     intakePayload: v.any(),
-    status: v.union(
-      v.literal("requested"),
-      v.literal("accepted"),
-      v.literal("declined"),
-      v.literal("completed"),
-    ),
+    status: v.union(v.literal("requested"), v.literal("accepted"), v.literal("declined"), v.literal("completed")),
   })
     .index("by_lawyer", ["lawyerUserId"])
     .index("by_citizen", ["citizenUserId"]),
@@ -201,31 +189,27 @@ export default defineSchema({
     metadata: v.any(),
   }).index("by_firm", ["firmId"]),
 
-  // ── Lexology-style legal-updates feed (news / insights / new-law alerts) ─────
-  // Populated by the scheduled sync (crons.ts). Public, read-only surface.
   legalUpdates: defineTable({
     title: v.string(),
     summary: v.string(),
     url: v.optional(v.string()),
-    source: v.string(), // e.g. "SC", "PIB", "eGazette", "editorial"
+    source: v.string(),
     kind: v.union(v.literal("judgment"), v.literal("legislation"), v.literal("news")),
-    jurisdiction: v.optional(v.string()), // "IN", "IN-DL", …
+    jurisdiction: v.optional(v.string()),
     practiceAreas: v.array(v.string()),
-    publishedAt: v.number(), // epoch ms — for ordering / freshness
-    contentHash: v.string(), // dedup key (idempotent sync)
+    publishedAt: v.number(),
+    contentHash: v.string(),
   })
     .index("by_published", ["publishedAt"])
     .index("by_kind", ["kind"])
     .index("by_hash", ["contentHash"])
     .searchIndex("search_updates", { searchField: "title", filterFields: ["kind", "jurisdiction"] }),
 
-  // Enacted legislation (Acts / amendments) — grounds research on statutes, not only judgments.
-  // Stored ALSO as corpusDocuments (docType "statute") for retrieval; this table is the registry.
   legislation: defineTable({
     actName: v.string(),
     jurisdiction: v.string(),
     section: v.optional(v.string()),
-    status: v.string(), // "in_force" | "amended" | "repealed"
+    status: v.string(),
     effectiveDate: v.optional(v.string()),
     sourceUrl: v.optional(v.string()),
     contentHash: v.string(),
@@ -233,9 +217,6 @@ export default defineSchema({
     .index("by_hash", ["contentHash"])
     .index("by_act", ["actName"]),
 
-  // Citizen chatbot sessions → also the lead-intelligence signal (§10): each session captures
-  // the detected legal domain + location + a short summary, so the firm side can see potential
-  // clients by practice area. Consent to be contacted is an explicit flag.
   chatSessions: defineTable({
     userId: v.optional(v.id("users")),
     messages: v.array(v.object({ role: v.string(), content: v.string() })),
@@ -251,7 +232,6 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_category", ["category"]),
 
-  // Per-source sync cursor for the scheduled real-time pull (resumable, dedup-aware).
   syncState: defineTable({
     source: v.string(),
     lastRunAt: v.number(),
