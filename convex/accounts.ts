@@ -8,35 +8,40 @@ export const ensureProfile = mutation({
   },
   handler: async (ctx, { accountType }) => {
     const userId = await requireUser(ctx);
-    const desiredRole = accountType === "advocate" ? "firm_admin" : "citizen";
-    const existingMembership = await ctx.db
-      .query("memberships")
+    const existing = await ctx.db
+      .query("userProfiles")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .first();
+      .unique();
 
-    if (existingMembership) {
-      const existingType = existingMembership.role === "citizen" ? "citizen" : "advocate";
-      if (existingType !== accountType) {
+    if (existing) {
+      if (existing.accountType !== accountType) {
         throw new Error(
-          `This email is already registered as a ${existingType}. Sign in using that account type.`,
+          `This email is already registered as a ${existing.accountType}. Sign in using that account type.`,
         );
       }
-      return { accountType, role: existingMembership.role, firmId: existingMembership.firmId };
+      return existing;
     }
 
-    const firmId = await ctx.db.insert("firms", {
-      name: accountType === "advocate" ? "My Legal Practice" : "Citizen Account",
-      ownerUserId: userId,
-      plan: "basic",
-    });
-
-    await ctx.db.insert("memberships", {
+    const profileId = await ctx.db.insert("userProfiles", {
       userId,
-      firmId,
-      role: desiredRole,
+      accountType,
+      displayName: undefined,
+      phone: undefined,
+      city: undefined,
+      onboardingComplete: false,
+      createdAt: Date.now(),
     });
 
-    return { accountType, role: desiredRole, firmId };
+    if (accountType === "advocate") {
+      const firmId = await ctx.db.insert("firms", {
+        name: "My Legal Practice",
+        ownerUserId: userId,
+        plan: "basic",
+      });
+      await ctx.db.insert("memberships", { userId, firmId, role: "firm_admin" });
+    }
+
+    return await ctx.db.get(profileId);
   },
 });
 
@@ -45,14 +50,17 @@ export const me = query({
   handler: async (ctx) => {
     const userId = await currentUserId(ctx);
     if (!userId) return null;
-
     const user = await ctx.db.get(userId);
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    if (!profile) return null;
+
     const membership = await ctx.db
       .query("memberships")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
-
-    if (!membership) return null;
 
     const lawyerProfile = await ctx.db
       .query("lawyerProfiles")
@@ -62,11 +70,12 @@ export const me = query({
     return {
       userId,
       email: user?.email ?? null,
-      name: user?.name ?? null,
-      phone: user?.phone ?? null,
-      accountType: membership.role === "citizen" ? "citizen" : "advocate",
-      role: membership.role,
-      firmId: membership.firmId,
+      name: user?.name ?? profile.displayName ?? null,
+      phone: user?.phone ?? profile.phone ?? null,
+      accountType: profile.accountType,
+      onboardingComplete: profile.onboardingComplete,
+      firmId: membership?.firmId ?? null,
+      role: membership?.role ?? null,
       lawyerProfileId: lawyerProfile?._id ?? null,
     };
   },
@@ -80,25 +89,22 @@ export const updateProfile = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireUser(ctx);
-    const membership = await ctx.db
-      .query("memberships")
+    const profile = await ctx.db
+      .query("userProfiles")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .first();
-    if (!membership) throw new Error("Complete account setup before editing your profile.");
+      .unique();
+    if (!profile) throw new Error("Complete account setup before editing your profile.");
 
+    await ctx.db.patch(profile._id, {
+      displayName: args.displayName.trim(),
+      phone: args.phone?.trim() || undefined,
+      city: args.city?.trim() || undefined,
+      onboardingComplete: true,
+    });
     await ctx.db.patch(userId, {
       name: args.displayName.trim(),
       phone: args.phone?.trim() || undefined,
     });
-
-    const lawyerProfile = await ctx.db
-      .query("lawyerProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .unique();
-    if (lawyerProfile && args.city !== undefined) {
-      await ctx.db.patch(lawyerProfile._id, { city: args.city.trim() || undefined });
-    }
-
-    return userId;
+    return profile._id;
   },
 });
