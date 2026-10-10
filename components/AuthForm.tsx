@@ -1,14 +1,14 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { Mail, LockKeyhole, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 function getAuthErrorMessage(error: unknown, flow: "signIn" | "signUp") {
   const message = error instanceof Error ? error.message.toLowerCase() : "";
 
   if (message.includes("already exists") || message.includes("already registered") || message.includes("account exists")) {
-    return "An account with this email already exists. Switch to Sign in instead.";
+    return "An account with this email already exists. Please sign in instead.";
   }
 
   if (message.includes("invalid password") || message.includes("password")) {
@@ -18,29 +18,41 @@ function getAuthErrorMessage(error: unknown, flow: "signIn" | "signUp") {
   }
 
   if (message.includes("network") || message.includes("fetch") || message.includes("websocket")) {
-    return "The authentication service could not be reached. Make sure Convex is running and try again.";
+    return "Connection error. Please check your internet and try again.";
   }
 
   return flow === "signUp"
-    ? "We could not create your account. Check the email and password, then try again."
+    ? "We could not create your account. Please try again."
     : "The email or password is incorrect.";
 }
 
-export default function AuthForm() {
+export default function AuthForm({ flow: initialFlow = "signUp" }: { flow?: "signIn" | "signUp" }) {
   const { signIn } = useAuthActions();
 
-  const [flow, setFlow] = useState<"signIn" | "signUp">("signUp");
+  const [flow, setFlow] = useState<"signIn" | "signUp">(initialFlow);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
 
+    if (!normalizedEmail.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (password.length < 8) {
       setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (flow === "signUp" && password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -62,92 +74,141 @@ export default function AuthForm() {
   const isSignUp = flow === "signUp";
 
   return (
-    <form onSubmit={submit} className="card w-full max-w-md border-white/70 p-6 sm:p-7">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue/10 text-blue">
-            <ShieldCheck size={23} />
-          </div>
-          <p className="section-label">SECURE LEGAL WORKSPACE</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-navy">
-            {isSignUp ? "Create your account" : "Welcome back"}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            {isSignUp
-              ? "Start managing your legal research and matters in one secure workspace."
-              : "Sign in to continue to your NyayaSetu workspace."}
-          </p>
+    <form onSubmit={submit} className="card w-full max-w-md border-white/70 p-7">
+      <div className="mb-8">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue/10 text-blue">
+          <ShieldCheck size={24} />
         </div>
+        <p className="section-label">SECURE WORKSPACE</p>
+        <h2 className="mt-3 text-2xl font-black tracking-tight text-navy">
+          {isSignUp ? "Create your account" : "Welcome back"}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {isSignUp
+            ? "Join NyayaSetu to access legal intelligence and trusted advocates."
+            : "Sign in to your NyayaSetu workspace."}
+        </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="label" htmlFor="auth-email">Email address</label>
+          <label className="label" htmlFor="auth-email">
+            Email address
+          </label>
           <div className="relative">
-            <Mail size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               id="auth-email"
-              className="input pl-10"
               type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="input pl-10"
+              placeholder="your@email.com"
+              disabled={busy}
             />
           </div>
         </div>
 
         <div>
-          <label className="label" htmlFor="auth-password">Password</label>
+          <label className="label" htmlFor="auth-password">
+            Password
+          </label>
           <div className="relative">
-            <LockKeyhole size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <LockKeyhole className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               id="auth-password"
-              className="input pl-10"
-              type="password"
-              placeholder="Minimum 8 characters"
-              autoComplete={isSignUp ? "new-password" : "current-password"}
-              minLength={8}
+              type={showPassword ? "text" : "password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="input pl-10 pr-10"
+              placeholder="At least 8 characters"
+              disabled={busy}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
         </div>
+
+        {isSignUp && (
+          <div>
+            <label className="label" htmlFor="auth-confirm">
+              Confirm password
+            </label>
+            <div className="relative">
+              <LockKeyhole className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                id="auth-confirm"
+                type={showPassword ? "text" : "password"}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="input pl-10 pr-10"
+                placeholder="Confirm password"
+                disabled={busy}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {error && (
-        <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">
+        <div className="mt-4 rounded-xl bg-red-50/80 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       <button type="submit" className="btn mt-6 w-full" disabled={busy}>
-        {busy ? "Please wait..." : isSignUp ? "Create secure account" : "Sign in to workspace"}
+        {busy ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            Processing...
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2">
+            {isSignUp ? "Create account" : "Sign in"}
+            <ArrowRight size={16} />
+          </span>
+        )}
       </button>
 
-      <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
-        <ShieldCheck size={14} className="text-success" />
-        <span>Your legal workspace is protected by secure authentication.</span>
+      <div className="mt-6 border-t border-slate-200/80 pt-6 text-center text-sm">
+        {isSignUp ? (
+          <>
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setFlow("signIn");
+                setError(null);
+              }}
+              className="font-semibold text-blue hover:underline"
+            >
+              Sign in
+            </button>
+          </>
+        ) : (
+          <>
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setFlow("signUp");
+                setError(null);
+              }}
+              className="font-semibold text-blue hover:underline"
+            >
+              Create one
+            </button>
+          </>
+        )}
       </div>
-
-      <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs text-slate-400">OR</span>
-        <div className="h-px flex-1 bg-slate-200" />
-      </div>
-
-      <button
-        type="button"
-        className="w-full text-center text-sm font-semibold text-blue transition hover:text-navy"
-        onClick={() => {
-          setError(null);
-          setFlow(isSignUp ? "signIn" : "signUp");
-        }}
-      >
-        {isSignUp ? "Already have an account? Sign in" : "New to NyayaSetu? Create an account"}
-      </button>
     </form>
   );
 }
