@@ -1,212 +1,130 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   BrainCircuit,
-  Building2,
   CheckCircle2,
-  ChevronRight,
-  FileText,
+  FileSearch,
   Gavel,
   Landmark,
-  MessageSquareText,
+  LockKeyhole,
   Search,
   ShieldCheck,
   Sparkles,
-  Star,
   Users,
+  MessageSquare,
+  TrendingUp,
+  Clock,
 } from "lucide-react";
 import Nav from "@/components/Nav";
 
-const features = [
+const capabilities = [
   {
     icon: BrainCircuit,
     title: "AI Legal Assistant",
-    text: "Citizen-friendly explanations for unclear legal issues, rights, and next steps.",
-    accent: "from-blue-500/20 to-cyan-500/5",
+    text: "Ask legal questions in plain language and understand possible next steps.",
+    href: "/auth/signin",
   },
   {
-    icon: FileText,
+    icon: FileSearch,
     title: "Document Intelligence",
-    text: "Upload notices, agreements, and judgments to extract clauses, risks, and insights.",
-    accent: "from-indigo-500/20 to-blue-500/5",
+    text: "Upload notices and agreements to identify important clauses and risks.",
+    href: "/auth/signin",
   },
   {
     icon: Search,
-    title: "Judgment Search",
-    text: "Find precedent context, legal references, and structured research in a single flow.",
-    accent: "from-amber-500/20 to-orange-500/5",
+    title: "Judgment Research",
+    text: "Explore Indian legal context, authorities, and relevant precedents.",
+    href: "/auth/signin",
   },
   {
     icon: Users,
-    title: "Advocate Marketplace",
-    text: "Discover verified legal professionals by state, district, specialization, and case type.",
-    accent: "from-emerald-500/20 to-teal-500/5",
+    title: "Find an Advocate",
+    text: "Discover verified advocate listings by practice area, language, and city.",
+    href: "/marketplace",
   },
 ];
 
-const steps = [
-  { number: "01", title: "Describe your issue", text: "Share a legal problem in plain language, without legal jargon." },
-  { number: "02", title: "Understand the context", text: "AI explains the law, rights, risks, and likely procedural steps." },
-  { number: "03", title: "Research and compare", text: "View case context and relevant legal authorities in an easy workflow." },
-  { number: "04", title: "Take informed action", text: "Connect with lawyers or proceed with confidence using clear guidance." },
+const workflow = [
+  ["01", "Describe", "Share your legal issue or upload a document."],
+  ["02", "Understand", "Get a clear explanation without legal jargon."],
+  ["03", "Research", "Explore relevant law, judgments, and sources."],
+  ["04", "Take action", "Find next steps or connect with a professional."],
 ];
 
-const stats = [
-  { value: "5x", label: "faster legal understanding" },
-  { value: "24/7", label: "Citizen support flow" },
-  { value: "100%", label: "Product-first UI" },
-  { value: "India", label: "Legal context built for local needs" },
-];
-
-const lawCategories = [
-  "Family law",
-  "Consumer rights",
-  "Property disputes",
-  "Criminal matters",
-  "Employment law",
-  "Cyber & digital",
-  "Contract review",
-  "Civil litigation",
-];
-
-const widgetHighlights = [
-  { title: "Legal summary", detail: "Key issues, sections, and risk marks extracted in seconds." },
-  { title: "Case matrix", detail: "Relevant authorities and tribunal context grouped by matter type." },
-  { title: "Lawyer matching", detail: "Specialization, district, fee, and experience aligned to your case." },
-];
-
-const reviews = [
-  {
-    name: "Ananya R.",
-    role: "Citizen user",
-    quote:
-      "This feels like a legal product built for real people. The explanations are simple, structured, and practical.",
-  },
-  {
-    name: "Vikram S.",
-    role: "Advocate",
-    quote:
-      "The dashboard feels premium and useful. It is built like a professional legal workspace, not a template.",
-  },
+const features = [
+  { icon: MessageSquare, title: "Smart Chat", text: "Real-time legal guidance" },
+  { icon: TrendingUp, title: "Analytics", text: "Track case progress" },
+  { icon: Clock, title: "Time Tracking", text: "Billable hours management" },
+  { icon: ShieldCheck, title: "Verified Lawyers", text: "Trusted professionals" },
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-[#f5f7fb] text-[#081a33]">
       <Nav />
-
-      <main>
-        <section className="relative overflow-hidden bg-[#06182d] text-white">
-          <div className="absolute inset-0">
-            <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-500/25 blur-3xl" />
-            <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
+      <main className="overflow-hidden">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-b from-[#061a31] via-[#081a33] to-[#f5f7fb] text-white py-20 sm:py-28">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl" />
           </div>
 
-          <div className="page-container relative py-16 md:py-20 lg:py-24">
-            <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-100 backdrop-blur-sm">
-                  <Sparkles size={14} /> legal intelligence reimagined
+          <div className="relative page-container">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-white/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-cyan-100">
+                  <Sparkles size={16} /> AI Legal Intelligence
                 </div>
 
-                <h1 className="mt-6 max-w-xl text-4xl font-black tracking-[-0.06em] sm:text-5xl lg:text-[4.2rem] lg:leading-[0.95]">
-                  Legal clarity for
-                  <span className="block text-gradient">citizens and lawyers.</span>
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
+                  Legal intelligence,
+                  <span className="block bg-gradient-to-r from-cyan-200 via-blue-200 to-amber-200 bg-clip-text text-transparent">
+                    made understandable.
+                  </span>
                 </h1>
 
-                <p className="mt-6 max-w-xl text-base leading-8 text-slate-300 md:text-lg">
-                  NyayaSetu connects legal information, AI-powered assistance, and professional discovery in one modern platform built for India’s real-world legal needs.
+                <p className="text-lg text-slate-300 leading-relaxed max-w-2xl">
+                  Understand complex legal documents, explore Indian legal context with AI-powered insights, and connect with verified advocates from one trusted platform.
                 </p>
 
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href="/citizen" className="btn btn-lg">
-                    Explore the platform
-                    <ArrowRight size={17} />
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <Link href="/auth/signup" className="btn">
+                    Get started free <ArrowRight size={16} />
                   </Link>
-                  <Link href="/marketplace" className="btn-ghost btn-lg border-white/25 bg-white/5 text-white hover:bg-white/10">
-                    Find a lawyer
+                  <Link href="/marketplace" className="btn-ghost text-white border-white/30 hover:bg-white/10">
+                    Browse advocates
                   </Link>
                 </div>
 
-                <div className="mt-8 flex flex-wrap gap-5 text-sm text-slate-200">
-                  {[
-                    "Simple legal explanations",
-                    "Professional legal workflow",
-                    "Trust-focused intelligence",
-                  ].map((item) => (
-                    <span key={item} className="inline-flex items-center gap-2">
-                      <CheckCircle2 size={16} className="text-emerald-300" />
-                      {item}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-6 pt-8 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-emerald-300" />
+                    <span>Indian legal focus</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-emerald-300" />
+                    <span>Privacy-first design</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-emerald-300" />
+                    <span>Expert review</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="relative lg:ml-auto">
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/5 p-3 shadow-2xl shadow-blue-950/30 backdrop-blur-xl">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(135deg,#0f1f38,#102a4b,#0d2340)] p-5">
-                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-slate-200">
-                      <span className="inline-flex items-center gap-2 font-semibold">
-                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                        Legal workspace active
-                      </span>
-                      <ShieldCheck size={16} className="text-amber-300" />
-                    </div>
-
-                    <div className="mt-5 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-                      <div className="rounded-2xl border border-white/10 bg-slate-950/20 p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Case snapshot</p>
-                            <h3 className="mt-2 text-2xl font-black">Property matter</h3>
-                          </div>
-                          <div className="rounded-xl bg-blue-500/15 p-2 text-blue-200">
-                            <Landmark size={20} />
-                          </div>
-                        </div>
-
-                        <div className="mt-5 space-y-3 text-sm text-slate-200">
-                          <div className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                            <span>Risk index</span>
-                            <span className="font-bold text-amber-300">Moderate</span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                            <span>Relevant sections</span>
-                            <span className="font-bold text-cyan-200">12, 17, 20</span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                            <span>Recommended action</span>
-                            <span className="font-bold text-emerald-300">Review notice</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">AI answer</p>
-                          <p className="mt-3 text-lg font-bold text-white">“Your case appears to involve a title dispute and notice response timeline.”</p>
-                        </div>
-
-                        <div className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-4">
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-amber-200">Recommended next step</p>
-                          <p className="mt-2 text-sm text-amber-50">
-                            Consult a property advocate within your district before filing a response.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-6 -left-6 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                      <MessageSquareText size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">AI support</p>
-                      <p className="font-bold">24 legal prompts ready</p>
+              <div className="relative hidden lg:block">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-transparent blur-2xl" />
+                <div className="relative rounded-2xl border border-white/20 bg-white/10 p-8 backdrop-blur-xl overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-blue-400 to-amber-400" />
+                  <div className="space-y-4">
+                    <div className="h-8 bg-white/20 rounded-lg w-3/4" />
+                    <div className="h-8 bg-white/20 rounded-lg w-1/2" />
+                    <div className="space-y-2 mt-8">
+                      <div className="h-4 bg-white/10 rounded w-full" />
+                      <div className="h-4 bg-white/10 rounded w-full" />
+                      <div className="h-4 bg-white/10 rounded w-2/3" />
                     </div>
                   </div>
                 </div>
@@ -215,168 +133,77 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-slate-200 bg-white/80">
-          <div className="page-container">
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                  <div className="text-3xl font-black tracking-[-0.05em] text-slate-900">{stat.value}</div>
-                  <div className="mt-2 text-sm text-slate-600">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="page-container py-16 md:py-20">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="section-label">One platform, three priorities</p>
-            <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-              Built for legal understanding, not just search.
+        {/* Capabilities Section */}
+        <section className="page-container py-20">
+          <div className="max-w-2xl mx-auto text-center mb-16">
+            <p className="section-label">ONE CONNECTED PLATFORM</p>
+            <h2 className="mt-4 text-4xl sm:text-5xl font-black text-navy tracking-tight">
+              Every legal workflow, reimagined
             </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              From document analysis to advocate discovery, everything you need for legal clarity.
+            </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {features.map(({ icon: Icon, title, text, accent }) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {capabilities.map(({ icon: Icon, title, text, href }) => (
               <Link
                 key={title}
-                href="/citizen"
-                className="group rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                href={href}
+                className="group card card-hover"
               >
-                <div className={`inline-flex rounded-2xl bg-gradient-to-br p-3 ${accent}`}>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
-                    <Icon size={22} />
-                  </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue/10 text-blue mb-4 group-hover:bg-blue/20 transition">
+                  <Icon size={24} />
                 </div>
-
-                <h3 className="mt-5 text-2xl font-black text-slate-900">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{text}</p>
-
-                <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-700">
-                  Learn more <ChevronRight size={16} />
-                </div>
+                <h3 className="font-bold text-navy">{title}</h3>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{text}</p>
               </Link>
             ))}
           </div>
         </section>
 
-        <section className="bg-[#f6f8fc] py-16 md:py-20">
-          <div className="page-container">
-            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <p className="section-label">How it works</p>
-                <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-                  Clear legal guidance, in a product experience people trust.
-                </h2>
-                <p className="mt-5 max-w-lg text-base leading-8 text-slate-600">
-                  The product experience is designed to guide citizens and lawyers through legal uncertainty with structured, grounded, professional flows instead of generic AI outputs.
-                </p>
+        {/* Workflow Section */}
+        <section className="page-container py-20">
+          <div className="max-w-2xl mx-auto text-center mb-16">
+            <p className="section-label">HOW IT WORKS</p>
+            <h2 className="mt-4 text-4xl sm:text-5xl font-black text-navy tracking-tight">
+              Your legal journey, simplified
+            </h2>
+          </div>
 
-                <div className="mt-8 space-y-4">
-                  {widgetHighlights.map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                      <div className="flex items-start gap-4">
-                        <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                          <CheckCircle2 size={18} />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-bold text-slate-900">{item.title}</h4>
-                          <p className="mt-1 text-sm leading-7 text-slate-600">{item.detail}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {workflow.map(([number, title, description]) => (
+              <div key={number} className="card">
+                <div className="text-4xl font-black text-blue/20 mb-2">{number}</div>
+                <h3 className="font-bold text-navy">{title}</h3>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{description}</p>
               </div>
-
-              <div className="grid gap-5 sm:grid-cols-2">
-                {steps.map((step) => (
-                  <div key={step.number} className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="mb-5 inline-flex rounded-xl bg-slate-100 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-700">
-                      {step.number}
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900">{step.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">{step.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        <section className="page-container py-16 md:py-20">
-          <div className="rounded-[2rem] bg-[#06182d] p-6 text-white shadow-2xl md:p-10">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <p className="section-label text-amber-300">Legal categories</p>
-                <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-                  Research and support across everyday legal needs.
-                </h2>
-              </div>
-
-              <Link href="/marketplace" className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-white">
-                Explore advocate directory <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              {lawCategories.map((category) => (
-                <span key={category} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200">
-                  {category}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="page-container py-16 md:py-20">
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <p className="section-label">Why lawyers use it</p>
-              <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-                A professional workspace, not a generic dashboard.
+        {/* Features Section */}
+        <section className="page-container py-20">
+          <div className="rounded-3xl bg-gradient-to-br from-navy via-blue-900 to-blue-600 text-white p-12 sm:p-16">
+            <div className="max-w-2xl">
+              <p className="section-label text-amber-300">PROFESSIONAL TOOLS</p>
+              <h2 className="mt-4 text-4xl font-black">
+                Built for lawyers, designed for simplicity
               </h2>
+              <p className="mt-4 text-lg text-slate-200">
+                Complete legal practice management with intelligent AI assistance.
+              </p>
 
-              <div className="mt-8 space-y-4">
-                {[
-                  "Matter-based legal workflow and intake",
-                  "AI summarization for judgments and documents",
-                  "Client, appointment, and practice management tools",
-                  "Professional legal research assistance",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                      <CheckCircle2 size={16} />
-                    </div>
-                    <p className="text-sm font-medium leading-7 text-slate-700">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6 shadow-sm md:p-8">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="section-label">Lawyer workspace</p>
-                  <h3 className="mt-2 text-2xl font-black text-slate-900">Professional tools overview</h3>
-                </div>
-                <div className="rounded-2xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-500/20">
-                  <Gavel size={22} />
-                </div>
-              </div>
-
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {[
-                  { icon: Building2, title: "Practice CRM" },
-                  { icon: Search, title: "Research assistant" },
-                  { icon: FileText, title: "Summarization" },
-                  { icon: ShieldCheck, title: "Verification" },
-                ].map(({ icon: Icon, title }) => (
-                  <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+              <div className="grid sm:grid-cols-2 gap-8 mt-12">
+                {features.map(({ icon: Icon, title, text }) => (
+                  <div key={title} className="flex gap-4">
+                    <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-400/20 text-amber-300">
                       <Icon size={20} />
                     </div>
-                    <p className="mt-4 text-lg font-bold text-slate-900">{title}</p>
+                    <div>
+                      <h3 className="font-bold">{title}</h3>
+                      <p className="text-sm text-slate-300 mt-1">{text}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -384,63 +211,23 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-white py-16 md:py-20">
-          <div className="page-container">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="section-label">Loved by users</p>
-              <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-                Product-first trust built into the experience.
-              </h2>
-            </div>
-
-            <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              {reviews.map((review) => (
-                <div key={review.name} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-                  <div className="flex items-center gap-1 text-amber-400">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star key={`${review.name}-${index}`} size={18} fill="currentColor" />
-                    ))}
-                  </div>
-                  <p className="mt-5 text-lg leading-8 text-slate-700">“{review.quote}”</p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
-                      {review.name.split(" ")[0][0]}
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900">{review.name}</div>
-                      <div className="text-sm text-slate-500">{review.role}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="pb-20">
-          <div className="page-container">
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#06182d] to-[#193d73] px-6 py-10 text-center text-white shadow-2xl md:px-10 md:py-14">
-              <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-amber-400/10 blur-3xl" />
-              <div className="absolute left-0 bottom-0 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
-
-              <div className="relative mx-auto max-w-3xl">
-                <p className="section-label text-amber-300">Ready to begin</p>
-                <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] sm:text-5xl">
-                  Build trust with a legal product people actually want to use.
-                </h2>
-                <p className="mt-5 text-base leading-8 text-slate-300">
-                  From public legal assistance to law-practice workflows, NyayaSetu is shaped for a premium end-to-end product experience.
-                </p>
-
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                  <Link href="/auth" className="btn btn-lg">
-                    Start with NyayaSetu
-                  </Link>
-                  <Link href="/marketplace" className="btn-ghost btn-lg border-white/20 bg-white/5 text-white hover:bg-white/10">
-                    View advocate directory
-                  </Link>
-                </div>
-              </div>
+        {/* CTA Section */}
+        <section className="page-container py-20">
+          <div className="card text-center">
+            <Gavel size={40} className="mx-auto text-blue mb-4" />
+            <h2 className="text-3xl font-black text-navy">
+              Ready to transform your legal workflow?
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              Join thousands of legal professionals using NyayaSetu for smarter legal work.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
+              <Link href="/auth/signup" className="btn">
+                Get started free
+              </Link>
+              <Link href="/marketplace" className="btn-ghost">
+                Explore marketplace
+              </Link>
             </div>
           </div>
         </section>

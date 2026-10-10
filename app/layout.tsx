@@ -4,13 +4,11 @@ import ConvexClientProvider from "./ConvexClientProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NyayaSetu — Indian Legal Intelligence",
+  title: "NyayaSetu — Legal Intelligence Platform",
   description:
-    "Structured intake → grounded AI legal research → assisted drafting, plus a citizen legal-information assistant and a verified-advocate directory.",
+    "AI-powered legal intelligence platform for citizens and lawyers. Document summarization, legal research, AI assistance, and advocate marketplace.",
 };
 
-// The app is Convex-client driven; render dynamically so the production build never fails during
-// static prerendering (removes an entire class of Vercel build-time failures).
 export const dynamic = "force-dynamic";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
